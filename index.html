@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>रुद्रा एआई – टेक्स्ट को अलग-अलग किरदारों की आवाज़ में बदलें (फ्री)</title>
+<meta name="description" content="रुद्रा एआई: अपनी स्क्रिप्ट लिखें और 24 अलग-अलग किरदारों की आवाज़ में हिंदी या अंग्रेज़ी में सुनें। पूरी तरह फ्री टेक्स्ट-टू-स्पीच वेबसाइट।">
+<meta name="theme-color" content="#3347E8">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎙️</text></svg>">
+<style>
+  :root {
+    --paper: #EEF2F6;
+    --panel: #FFFFFF;
+    --ink: #17212B;
+    --muted: #5B6978;
+    --line: #D5DDE6;
+    --cobalt: #3347E8;
+    --cobalt-ink: #FFFFFF;
+    --hi: #FFD84D;
+    --hi-ink: #17212B;
+    --warn: #B3261E;
+    --font: "Noto Sans Devanagari", "Mukta", "Nirmala UI", "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #121A23; --panel: #1B2632; --ink: #E8EEF4; --muted: #9AA9B8;
+      --line: #2C3A49; --cobalt: #6F7FFF; --cobalt-ink: #0E1530; --hi: #E8C23A; --warn: #FF8A80;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #121A23; --panel: #1B2632; --ink: #E8EEF4; --muted: #9AA9B8;
+    --line: #2C3A49; --cobalt: #6F7FFF; --cobalt-ink: #0E1530; --hi: #E8C23A; --warn: #FF8A80;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font-family: var(--font); font-size: 17px; line-height: 1.6;
+  }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 20px 16px 48px; }
+  header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 4px 0 18px; }
+  .brand { font-size: 1.35rem; font-weight: 800; letter-spacing: -0.01em; margin: 0; }
+  .theme-btn {
+    border: 1px solid var(--line); background: var(--panel); color: var(--ink);
+    border-radius: 999px; padding: 8px 14px; font: inherit; font-size: .9rem; cursor: pointer;
+  }
+  h1.lead { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.2; margin: 6px 0 8px; font-weight: 800; letter-spacing: -0.02em; }
+  p.sub { margin: 0 0 22px; color: var(--muted); max-width: 56ch; }
+
+  .grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 18px; align-items: start; }
+  @media (max-width: 820px) { .grid { grid-template-columns: 1fr; } }
+
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 18px; }
+  .card h2 { font-size: 1rem; margin: 0 0 10px; font-weight: 700; }
+
+  textarea {
+    width: 100%; min-height: 220px; resize: vertical;
+    border: 1px solid var(--line); border-radius: 10px; padding: 14px;
+    background: var(--paper); color: var(--ink); font: inherit; line-height: 1.7;
+  }
+  textarea:focus, select:focus, button:focus-visible, input[type=range]:focus-visible {
+    outline: 3px solid var(--cobalt); outline-offset: 2px;
+  }
+  .meta { display: flex; justify-content: space-between; gap: 10px; color: var(--muted); font-size: .85rem; margin-top: 8px; flex-wrap: wrap; }
+
+  .samples { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 0; }
+  .chip {
+    border: 1px solid var(--line); background: transparent; color: var(--ink);
+    border-radius: 999px; padding: 6px 12px; font: inherit; font-size: .85rem; cursor: pointer;
+  }
+  .chip:hover { border-color: var(--cobalt); }
+
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+  .btn {
+    border: 0; border-radius: 10px; padding: 12px 20px; font: inherit; font-weight: 700; cursor: pointer;
+    background: var(--cobalt); color: var(--cobalt-ink); min-height: 48px;
+  }
+  .btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+  .btn:disabled { opacity: .45; cursor: not-allowed; }
+
+  .wave { display: flex; align-items: center; gap: 3px; height: 44px; margin: 16px 0 4px; }
+  .wave span { flex: 1; max-width: 8px; height: 6px; border-radius: 4px; background: var(--cobalt); opacity: .35; transition: height .2s; }
+  .wave.live span { opacity: 1; animation: bounce 900ms ease-in-out infinite; }
+  .wave.live span:nth-child(3n) { animation-duration: 700ms; }
+  .wave.live span:nth-child(4n+1) { animation-duration: 1100ms; }
+  .wave.live span:nth-child(2n) { animation-delay: -300ms; }
+  @keyframes bounce { 0%,100% { height: 6px; } 50% { height: 40px; } }
+  @media (prefers-reduced-motion: reduce) {
+    .wave.live span { animation: none; height: 22px; }
+  }
+
+  .reader {
+    display: none; margin-top: 14px; padding: 14px; border-radius: 10px;
+    background: var(--paper); border: 1px dashed var(--line); line-height: 1.9; white-space: pre-wrap; word-break: break-word;
+    max-height: 260px; overflow: auto;
+  }
+  .reader.on { display: block; }
+  .reader mark { background: var(--hi); color: var(--hi-ink); border-radius: 4px; padding: 0 2px; }
+
+  label { display: block; font-weight: 600; font-size: .92rem; margin: 14px 0 6px; }
+  label:first-of-type { margin-top: 0; }
+  select {
+    width: 100%; padding: 11px 12px; border-radius: 10px; border: 1px solid var(--line);
+    background: var(--paper); color: var(--ink); font: inherit;
+  }
+  .row { display: flex; align-items: center; gap: 10px; }
+  .row output { min-width: 3.2em; text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
+  input[type=range] { width: 100%; accent-color: var(--cobalt); }
+
+  .chars-card { margin-bottom: 18px; }
+  .chars { display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 10px; margin-top: 4px; }
+  .char {
+    display: flex; flex-direction: column; align-items: flex-start; gap: 2px; text-align: left;
+    border: 1px solid var(--line); background: var(--paper); color: var(--ink);
+    border-radius: 12px; padding: 10px 12px; font: inherit; cursor: pointer; min-height: 76px;
+  }
+  .char .em { font-size: 1.5rem; line-height: 1.2; }
+  .char .nm { font-weight: 700; font-size: .92rem; line-height: 1.25; }
+  .char .ds { font-size: .76rem; color: var(--muted); line-height: 1.25; }
+  .char:hover { border-color: var(--cobalt); }
+  .char[aria-pressed="true"] { border: 2px solid var(--cobalt); background: var(--panel); padding: 9px 11px; }
+  .status { margin-top: 12px; min-height: 1.6em; color: var(--muted); font-size: .92rem; }
+  .status.err { color: var(--warn); }
+  .note { margin-top: 18px; font-size: .88rem; color: var(--muted); }
+  .note b { color: var(--ink); }
+  footer { margin-top: 28px; color: var(--muted); font-size: .85rem; text-align: center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="brand">🎙️ रुद्रा एआई</p>
+    <button class="theme-btn" id="themeBtn" type="button" aria-label="थीम बदलें">🌓 थीम</button>
+  </header>
+
+  <h1 class="lead">अपनी स्क्रिप्ट लिखिए,<br>अपने पसंदीदा किरदार की आवाज़ में सुनिए</h1>
+  <p class="sub">कोई भी टेक्स्ट पेस्ट करें, 24 किरदारों में से आवाज़ चुनें और सुनें। हिंदी और अंग्रेज़ी दोनों चलती हैं। बिल्कुल फ्री, कोई लॉगिन नहीं।</p>
+
+  <section class="card chars-card" aria-labelledby="charTitle">
+    <h2 id="charTitle">किरदार की आवाज़ चुनिए <span style="font-weight:400;color:var(--muted)">(छूते ही नमूना सुनाई देगा)</span></h2>
+    <div class="chars" id="chars"></div>
+  </section>
+
+  <div class="grid">
+    <section class="card" aria-labelledby="scriptTitle">
+      <h2 id="scriptTitle">आपकी स्क्रिप्ट</h2>
+      <textarea id="text" placeholder="यहाँ अपनी स्क्रिप्ट लिखें या पेस्ट करें…"></textarea>
+      <div class="meta"><span id="count">0 अक्षर</span><span id="time">अनुमानित समय: 0 सेकंड</span></div>
+
+      <div class="samples" aria-label="उदाहरण">
+        <button class="chip" type="button" data-sample="hi">हिंदी उदाहरण</button>
+        <button class="chip" type="button" data-sample="en">English example</button>
+        <button class="chip" type="button" id="clearBtn">साफ़ करें</button>
+      </div>
+
+      <div class="wave" id="wave" aria-hidden="true"></div>
+
+      <div class="actions">
+        <button class="btn" id="playBtn" type="button">▶ सुनाओ</button>
+        <button class="btn ghost" id="pauseBtn" type="button" disabled>⏸ रोको</button>
+        <button class="btn ghost" id="stopBtn" type="button" disabled>⏹ बंद करो</button>
+      </div>
+
+      <div class="status" id="status" role="status" aria-live="polite"></div>
+      <div class="reader" id="reader" aria-label="पढ़ा जा रहा टेक्स्ट"></div>
+    </section>
+
+    <aside class="card" aria-labelledby="setTitle">
+      <h2 id="setTitle">और बारीक सेटिंग <span style="font-weight:400;color:var(--muted)">(किरदार चुनने पर अपने आप भर जाती है)</span></h2>
+
+      <label for="voice">डिवाइस की बेस आवाज़</label>
+      <select id="voice"></select>
+
+      <label for="rate">गति</label>
+      <div class="row"><input type="range" id="rate" min="0.5" max="1.6" step="0.05" value="1"><output id="rateOut">1.0x</output></div>
+
+      <label for="pitch">पिच (भारीपन)</label>
+      <div class="row"><input type="range" id="pitch" min="0.1" max="2" step="0.05" value="1"><output id="pitchOut">1.0</output></div>
+
+      <label for="vol">आवाज़ का वॉल्यूम</label>
+      <div class="row"><input type="range" id="vol" min="0" max="1" step="0.05" value="1"><output id="volOut">100%</output></div>
+
+      <p class="note"><b>ध्यान दें:</b> हर किरदार आपके डिवाइस की आवाज़ को अलग पिच और गति देकर बनाया गया है, इसलिए सुनने में फ़र्क़ डिवाइस के हिसाब से थोड़ा अलग हो सकता है। आवाज़ें आपके फोन या कंप्यूटर की होती हैं, इसलिए सबके यहाँ अलग-अलग दिख सकती हैं। हिंदी आवाज़ न दिखे तो फोन की Settings → Language → Text-to-speech में Google की हिंदी आवाज़ इंस्टॉल कर लें।</p>
+    </aside>
+  </div>
+
+  <footer>रुद्रा एआई · आपका लिखा टेक्स्ट सिर्फ आपके डिवाइस पर रहता है</footer>
+</div>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var text = $('text'), voiceSel = $('voice'), statusEl = $('status'), reader = $('reader'), wave = $('wave');
+  var playBtn = $('playBtn'), pauseBtn = $('pauseBtn'), stopBtn = $('stopBtn');
+  var synth = window.speechSynthesis;
+
+  // waveform bars
+  for (var i = 0; i < 40; i++) wave.appendChild(document.createElement('span'));
+
+  function setStatus(msg, isErr) { statusEl.textContent = msg || ''; statusEl.className = 'status' + (isErr ? ' err' : ''); }
+
+  if (!synth || typeof SpeechSynthesisUtterance === 'undefined') {
+    setStatus('आपका ब्राउज़र आवाज़ सुनाने की सुविधा नहीं देता। Chrome या Edge इस्तेमाल करें।', true);
+    playBtn.disabled = true;
+    return;
+  }
+
+  // ---------- samples & saved draft ----------
+  var SAMPLES = {
+    hi: 'नमस्ते दोस्तों! आज हम सीखेंगे कि अपनी बात को आवाज़ में कैसे बदला जाए। बस अपनी स्क्रिप्ट लिखिए, आवाज़ चुनिए और सुनिए।',
+    en: 'Hello everyone! Welcome to my channel. Today I will show you how to turn any script into a clear voice, completely free.'
+  };
+  try { var saved = localStorage.getItem('tts-draft'); if (saved) text.value = saved; } catch (e) {}
+
+  function updateMeta() {
+    var n = text.value.length;
+    $('count').textContent = n + ' अक्षर';
+    $('time').textContent = 'अनुमानित समय: ' + Math.max(0, Math.round(n / 14 / parseFloat($('rate').value))) + ' सेकंड';
+    try { localStorage.setItem('tts-draft', text.value); } catch (e) {}
+  }
+  text.addEventListener('input', updateMeta);
+  document.querySelectorAll('[data-sample]').forEach(function (b) {
+    b.addEventListener('click', function () { text.value = SAMPLES[b.getAttribute('data-sample')]; updateMeta(); });
+  });
+  $('clearBtn').addEventListener('click', function () { stop(); text.value = ''; updateMeta(); text.focus(); });
+
+  // ---------- sliders ----------
+  function bindRange(id, outId, fmt) {
+    var el = $(id), out = $(outId);
+    function upd() { out.textContent = fmt(parseFloat(el.value)); updateMeta(); }
+    el.addEventListener('input', upd); upd();
+  }
+  bindRange('rate', 'rateOut', function (v) { return v.toFixed(1) + 'x'; });
+  bindRange('pitch', 'pitchOut', function (v) { return v.toFixed(1); });
+  bindRange('vol', 'volOut', function (v) { return Math.round(v * 100) + '%'; });
+
+  // ---------- voices ----------
+  var voices = [];
+  function rank(v) {
+    var l = (v.lang || '').toLowerCase().replace('_', '-');
+    if (l.indexOf('hi') === 0) return 0;
+    if (l === 'en-in') return 1;
+    if (l.indexOf('en') === 0) return 2;
+    return 3;
+  }
+  function loadVoices() {
+    var list = synth.getVoices();
+    if (!list.length) return;
+    voices = list.slice().sort(function (a, b) { return rank(a) - rank(b) || a.name.localeCompare(b.name); });
+    var prev = voiceSel.value;
+    voiceSel.innerHTML = '';
+    var auto = document.createElement('option');
+    auto.value = 'auto'; auto.textContent = 'अपने आप चुनें (हिंदी/अंग्रेज़ी पहचानकर)';
+    voiceSel.appendChild(auto);
+    voices.forEach(function (v, i) {
+      var o = document.createElement('option');
+      o.value = String(i); o.textContent = v.name + ' (' + v.lang + ')';
+      voiceSel.appendChild(o);
+    });
+    if (prev) voiceSel.value = prev;
+  }
+  loadVoices();
+  if (synth.onvoiceschanged !== undefined) synth.onvoiceschanged = loadVoices;
+
+  var FEMALE_RE = /female|woman|girl|swara|neerja|heera|kalpana|priya|aditi|raveena|lekha|veena|zira|hazel|samantha|susan|karen|tessa|moira|fiona|victoria|kate|serena|google.*(hindi|india)|hi-in-x-(hia|hid)/i;
+  var MALE_RE = /(^|[^a-z])male|man\b|madhur|hemant|ravi|prabhat|rishi|david|mark|james|george|daniel|alex|fred|guy|ryan|hi-in-x-(hic|hie)/i;
+
+  function pickVoice(chunkText) {
+    if (voiceSel.value !== 'auto' && voices[+voiceSel.value]) return voices[+voiceSel.value];
+    var wantHindi = /[\u0900-\u097F]/.test(chunkText);
+    var cands = voices.filter(function (v) {
+      var l = (v.lang || '').toLowerCase().replace('_', '-');
+      return wantHindi ? l.indexOf('hi') === 0 : (l === 'en-in' || l.indexOf('en') === 0);
+    });
+    if (!cands.length) return null;
+    var g = current.gender;
+    if (g === 'f') {
+      var f = cands.filter(function (v) { return FEMALE_RE.test(v.name + ' ' + v.voiceURI) && !/\bmale\b/i.test(v.name.replace(/female/ig, '')); })[0];
+      if (f) return f;
+    } else if (g === 'm') {
+      var m = cands.filter(function (v) { return MALE_RE.test(v.name + ' ' + v.voiceURI) && !/female/i.test(v.name); })[0];
+      if (m) return m;
+      if (cands.length > 1) return cands[cands.length - 1];
+    }
+    return cands[0];
+  }
+
+  // ---------- characters ----------
+  // p = pitch, r = rate, v = volume, g = gender preference (m/f/any)
+  var CHARS = [
+    { id: 'rudra',  em: '🔱', nm: 'रुद्र (मुख्य)',     ds: 'गंभीर, भरोसेमंद',      p: 0.85, r: 1.0,  v: 1,   g: 'm', hi: 'नमस्ते, मैं रुद्र हूँ। बताइए, आज क्या सुनाना है?', en: 'Hello, I am Rudra. Tell me, what shall I read for you today?' },
+    { id: 'natural',em: '🙂', nm: 'नेचुरल',            ds: 'सीधी, साफ़ आवाज़',       p: 1.0,  r: 1.0,  v: 1,   g: 'any', hi: 'नमस्ते, यह मेरी साधारण आवाज़ है।', en: 'Hello, this is my natural voice.' },
+    { id: 'anchor', em: '📺', nm: 'न्यूज़ एंकर',        ds: 'तेज़ और स्पष्ट',         p: 0.9,  r: 1.15, v: 1,   g: 'm', hi: 'नमस्कार, आप देख रहे हैं आज की ताज़ा ख़बरें।', en: 'Good evening, and welcome to tonight\'s top headlines.' },
+    { id: 'rj',     em: '📻', nm: 'रेडियो जॉकी',        ds: 'जोशीली और तेज़',         p: 1.25, r: 1.3,  v: 1,   g: 'f', hi: 'हेलो हेलो दोस्तों! कैसे हैं आप सब? चलिए शुरू करते हैं!', en: 'Hello hello everyone! How are you all? Let\'s get started!' },
+    { id: 'dadi',   em: '👵', nm: 'कहानी वाली दादी',    ds: 'धीमी, प्यार भरी',        p: 0.8,  r: 0.78, v: 1,   g: 'f', hi: 'आ जा मेरे बच्चे, आज मैं तुझे एक कहानी सुनाती हूँ।', en: 'Come here, my child, let me tell you a story today.' },
+    { id: 'dada',   em: '👴', nm: 'बुज़ुर्ग दादाजी',    ds: 'भारी और धीमी',          p: 0.5,  r: 0.72, v: 1,   g: 'm', hi: 'बेटा, ज़िंदगी में सब्र सबसे बड़ी चीज़ है।', en: 'My son, patience is the greatest thing in life.' },
+    { id: 'hero',   em: '🦸', nm: 'फ़िल्मी हीरो',       ds: 'दमदार, ठहरी हुई',        p: 0.65, r: 0.92, v: 1,   g: 'm', hi: 'मैं आ गया हूँ, अब किसी को डरने की ज़रूरत नहीं।', en: 'I have arrived. Nobody needs to be afraid anymore.' },
+    { id: 'villain',em: '😈', nm: 'विलेन',              ds: 'डरावनी, गहरी',           p: 0.2,  r: 0.7,  v: 1,   g: 'm', hi: 'हा हा हा! अब तुम मेरे जाल से नहीं बच सकते।', en: 'Ha ha ha! Now you cannot escape my trap.' },
+    { id: 'monster',em: '👹', nm: 'मॉन्स्टर',           ds: 'बहुत भारी, बहुत धीमी',   p: 0.1,  r: 0.55, v: 1,   g: 'm', hi: 'मैं... जंगल का राक्षस हूँ।', en: 'I... am the monster of the forest.' },
+    { id: 'kid',    em: '🧒', nm: 'प्यारा बच्चा',       ds: 'ऊँची और चंचल',           p: 1.85, r: 1.1,  v: 1,   g: 'f', hi: 'मम्मी मम्मी, देखो मैंने क्या बनाया!', en: 'Mummy, mummy, look what I made!' },
+    { id: 'doll',   em: '🎀', nm: 'छोटी गुड़िया',       ds: 'मीठी और हल्की',          p: 1.7,  r: 0.95, v: 1,   g: 'f', hi: 'मुझे चॉकलेट चाहिए, प्लीज़ दिला दो ना।', en: 'I want chocolate, please get me some.' },
+    { id: 'fairy',  em: '🧚', nm: 'जादुई परी',          ds: 'हल्की, सपनों जैसी',      p: 1.6,  r: 0.88, v: 0.95,g: 'f', hi: 'तुम्हारी इच्छा पूरी होगी, बस आँखें बंद करो।', en: 'Your wish will come true, just close your eyes.' },
+    { id: 'toon',   em: '🐿️', nm: 'कार्टून चिपमंक',     ds: 'बहुत ऊँची और तेज़',      p: 2.0,  r: 1.45, v: 1,   g: 'any', hi: 'अरे वाह! चलो चलो जल्दी चलो, मज़ा आएगा!', en: 'Wow! Come on come on, hurry up, it will be fun!' },
+    { id: 'robot',  em: '🤖', nm: 'रोबोट',              ds: 'मशीन जैसी, सपाट',        p: 0.3,  r: 0.88, v: 1,   g: 'm', hi: 'आदेश प्राप्त हुआ। कार्य शुरू किया जा रहा है।', en: 'Command received. Starting the task now.' },
+    { id: 'guru',   em: '🧘', nm: 'ध्यान गुरु',         ds: 'शांत और बहुत धीमी',      p: 0.8,  r: 0.62, v: 0.9, g: 'm', hi: 'गहरी साँस लीजिए... और धीरे-धीरे छोड़िए।', en: 'Take a deep breath... and slowly let it go.' },
+    { id: 'spy',    em: '🕵️', nm: 'जासूस',              ds: 'फुसफुसाती, धीमी',        p: 0.6,  r: 0.85, v: 0.55,g: 'm', hi: 'धीरे बोलो, दीवारों के भी कान होते हैं।', en: 'Speak softly, even the walls have ears.' },
+    { id: 'bhola',  em: '🐻', nm: 'भोला भालू',         ds: 'कार्टून · मोटा, भोला',     p: 0.55, r: 0.8,  v: 1,   g: 'm', hi: 'अरे यार, पहले समोसे खाते हैं, फिर कुछ और सोचेंगे।', en: 'Hey friend, let\'s eat some snacks first, then we will think.' },
+    { id: 'chalak', em: '🦊', nm: 'चालाक चीकू',        ds: 'कार्टून · पतला, शरारती',   p: 1.35, r: 1.3,  v: 1,   g: 'm', hi: 'मेरे पास एक ज़बरदस्त आइडिया है, बस किसी को बताना मत!', en: 'I have a brilliant idea, just do not tell anyone!' },
+    { id: 'nanha',  em: '💪', nm: 'नन्हा बहादुर',      ds: 'कार्टून · छोटा पहलवान',    p: 1.5,  r: 1.1,  v: 1,   g: 'm', hi: 'डरो मत दोस्तों, मैं हूँ ना! चलो सबको बचाते हैं!', en: 'Do not be afraid, friends, I am here! Let us save everyone!' },
+    { id: 'sheru',  em: '🦁', nm: 'शेरू शेर',          ds: 'कार्टून · जंगल का राजा',   p: 0.35, r: 0.8,  v: 1,   g: 'm', hi: 'यह मेरा जंगल है, यहाँ मेरी मर्ज़ी चलती है।', en: 'This is my jungle, and here my word is law.' },
+    { id: 'mitthu', em: '🦜', nm: 'मिट्ठू तोता',       ds: 'कार्टून · ऊँची, रटने वाली', p: 1.9,  r: 1.25, v: 1,   g: 'any', hi: 'मिट्ठू बोला, राम राम! पानी पिलाओ भाई!', en: 'Mitthu says hello hello! Give me some water, friend!' },
+    { id: 'babloo', em: '🐵', nm: 'बंदर बबलू',         ds: 'कार्टून · उछल-कूद वाला',   p: 1.5,  r: 1.5,  v: 1,   g: 'any', hi: 'खी खी खी! मेरा केला कहाँ है?', en: 'Hee hee hee! Where is my banana?' },
+    { id: 'jadugar',em: '🧙', nm: 'जादूगर',            ds: 'कार्टून · रहस्यमयी',       p: 0.45, r: 0.8,  v: 1,   g: 'm', hi: 'आबरा का डाबरा... गिली गिली छू!', en: 'Abracadabra... poof, it is gone!' },
+    { id: 'pirate', em: '🏴‍☠️', nm: 'समुद्री डाकू',      ds: 'कार्टून · कड़क, भारी',     p: 0.4,  r: 0.85, v: 1,   g: 'm', hi: 'अरे मेरे साथियों, ख़ज़ाने की तरफ़ पाल चढ़ाओ!', en: 'Hey my mates, set sail towards the treasure!' }
+  ];
+  var current = CHARS[0];
+  var charsEl = $('chars');
+
+  function setRange(id, val) { var el = $(id); el.value = val; el.dispatchEvent(new Event('input')); }
+
+  function selectChar(i, withPreview) {
+    current = CHARS[i];
+    Array.prototype.forEach.call(charsEl.children, function (b, k) { b.setAttribute('aria-pressed', k === i ? 'true' : 'false'); });
+    setRange('pitch', current.p); setRange('rate', current.r); setRange('vol', current.v);
+    try { localStorage.setItem('tts-char', current.id); } catch (e) {}
+    if (withPreview) {
+      var hindiOk = voices.some(function (v) { return (v.lang || '').toLowerCase().replace('_', '-').indexOf('hi') === 0; });
+      play(hindiOk || !voices.length ? current.hi : current.en);
+    }
+  }
+
+  CHARS.forEach(function (c, i) {
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'char'; b.setAttribute('aria-pressed', 'false');
+    var em = document.createElement('span'); em.className = 'em'; em.textContent = c.em;
+    var nm = document.createElement('span'); nm.className = 'nm'; nm.textContent = c.nm;
+    var ds = document.createElement('span'); ds.className = 'ds'; ds.textContent = c.ds;
+    b.appendChild(em); b.appendChild(nm); b.appendChild(ds);
+    b.addEventListener('click', function () { selectChar(i, true); });
+    charsEl.appendChild(b);
+  });
+  var startIdx = 0;
+  try { var sc = localStorage.getItem('tts-char'); CHARS.forEach(function (c, i) { if (c.id === sc) startIdx = i; }); } catch (e) {}
+
+  // ---------- chunking (long text breaks on some phones) ----------
+  function makeChunks(str) {
+    var out = [], re = /[^।.!?\n]+[।.!?]*\s*/g, m;
+    while ((m = re.exec(str)) !== null) {
+      var piece = m[0], start = m.index;
+      if (!piece.trim()) continue;
+      while (piece.length > 200) {
+        var cut = piece.lastIndexOf(' ', 200);
+        if (cut < 60) cut = 200;
+        out.push({ t: piece.slice(0, cut), s: start });
+        piece = piece.slice(cut); start += cut;
+      }
+      if (piece.trim()) out.push({ t: piece, s: start });
+    }
+    return out;
+  }
+
+  // ---------- reading view ----------
+  var fullText = '';
+  function showWord(abs) {
+    var end = abs;
+    while (end < fullText.length && !/[\s।.,!?]/.test(fullText[end])) end++;
+    if (end === abs) end = Math.min(abs + 1, fullText.length);
+    reader.textContent = '';
+    reader.appendChild(document.createTextNode(fullText.slice(0, abs)));
+    var mk = document.createElement('mark');
+    mk.textContent = fullText.slice(abs, end);
+    reader.appendChild(mk);
+    reader.appendChild(document.createTextNode(fullText.slice(end)));
+    mk.scrollIntoView({ block: 'nearest' });
+  }
+
+  // ---------- playback ----------
+  var chunks = [], idx = 0, active = false, paused = false, token = 0;
+
+  function ui(state) {
+    var playing = state !== 'idle';
+    wave.classList.toggle('live', state === 'playing');
+    reader.classList.toggle('on', playing);
+    playBtn.disabled = playing;
+    pauseBtn.disabled = !playing;
+    stopBtn.disabled = !playing;
+    pauseBtn.textContent = state === 'paused' ? '▶ जारी रखो' : '⏸ रोको';
+  }
+
+  function speakNext(myToken) {
+    if (myToken !== token) return;
+    if (idx >= chunks.length) { active = false; ui('idle'); setStatus('पूरा हुआ ✅'); return; }
+    var c = chunks[idx];
+    var u = new SpeechSynthesisUtterance(c.t);
+    var v = pickVoice(c.t);
+    if (v) { u.voice = v; u.lang = v.lang; } else { u.lang = /[\u0900-\u097F]/.test(c.t) ? 'hi-IN' : 'en-IN'; }
+    u.rate = parseFloat($('rate').value);
+    u.pitch = parseFloat($('pitch').value);
+    u.volume = parseFloat($('vol').value);
+    u.onboundary = function (e) { if (myToken === token && typeof e.charIndex === 'number') showWord(c.s + e.charIndex); };
+    u.onstart = function () { if (myToken === token) showWord(c.s); };
+    u.onend = function () { if (myToken === token) { idx++; speakNext(myToken); } };
+    u.onerror = function (e) {
+      if (myToken !== token || e.error === 'interrupted' || e.error === 'canceled') return;
+      stop();
+      setStatus('आवाज़ चलाने में दिक्कत आई। दूसरी आवाज़ चुनकर फिर कोशिश करें।', true);
+    };
+    synth.speak(u);
+  }
+
+  function play(override) {
+    fullText = (typeof override === 'string') ? override : text.value;
+    if (!fullText.trim()) { setStatus('पहले कुछ टेक्स्ट लिखिए।', true); text.focus(); return; }
+    synth.cancel();
+    token++;
+    chunks = makeChunks(fullText); idx = 0; active = true; paused = false;
+    var hasHindi = /[\u0900-\u097F]/.test(fullText);
+    var hindiVoice = voices.some(function (v) { return (v.lang || '').toLowerCase().replace('_', '-').indexOf('hi') === 0; });
+    if (hasHindi && !hindiVoice && voiceSel.value === 'auto') {
+      setStatus('इस डिवाइस पर हिंदी आवाज़ नहीं मिली, इसलिए आवाज़ साफ़ न आए तो नीचे दिया नोट देखें।');
+    } else { setStatus('बोल रहा है…'); }
+    ui('playing');
+    speakNext(token);
+  }
+
+  function togglePause() {
+    if (!active) return;
+    if (paused) { synth.resume(); paused = false; ui('playing'); setStatus('बोल रहा है…'); }
+    else { synth.pause(); paused = true; ui('paused'); setStatus('रुका हुआ है'); }
+  }
+
+  function stop() {
+    token++; active = false; paused = false;
+    synth.cancel();
+    ui('idle'); setStatus('');
+  }
+
+  playBtn.addEventListener('click', function () { play(); });
+  pauseBtn.addEventListener('click', togglePause);
+  stopBtn.addEventListener('click', stop);
+  window.addEventListener('beforeunload', function () { synth.cancel(); });
+
+  // ---------- theme ----------
+  $('themeBtn').addEventListener('click', function () {
+    var root = document.documentElement;
+    var dark = root.getAttribute('data-theme') === 'dark' ||
+      (!root.getAttribute('data-theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    root.setAttribute('data-theme', dark ? 'light' : 'dark');
+  });
+
+  selectChar(startIdx, false);
+  updateMeta();
+})();
+</script>
+</body>
+</html>
